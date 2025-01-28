@@ -15,7 +15,7 @@ config STM32_SELECT
     select HAVE_CHIPID
     select HAVE_STEPPER_BOTH_EDGE
     select HAVE_BOOTLOADER_REQUEST
-    select HAVE_LIMITED_CODE_SIZE if MACH_STM32F031 || MACH_STM32F042
+    select HAVE_LIMITED_CODE_SIZE if FLASH_SIZE < 0x10000
 
 config BOARD_DIRECTORY
     string
@@ -117,6 +117,10 @@ config MACH_STM32F103x6
     depends on LOW_LEVEL_OPTIONS && MACH_STM32F103
     bool "Only 10KiB of RAM (for rare stm32f103x6 variant)"
 
+config MACH_STM32F070x6
+    depends on LOW_LEVEL_OPTIONS && MACH_STM32F070
+    bool "Only 6KiB of RAM (for rare stm32f070x6 variant)"
+
 config MACH_STM32F0
     bool
 config MACH_STM32F1
@@ -211,6 +215,8 @@ config CLOCK_FREQ
 
 config FLASH_SIZE
     hex
+    default 0x8000 if MACH_STM32F031 || MACH_STM32F042 || MACH_STM32F070x6
+    default 0x20000 if (MACH_STM32F070 || MACH_STM32F072) && !MACH_STM32F070x6
     default 0x8000 if MACH_STM32F031 || MACH_STM32F042
     default 0x20000 if MACH_STM32F070 || MACH_STM32F072
     default 0x10000 if MACH_STM32F103 || MACH_STM32L412 # Flash size of stm32f103x8 (64KiB)
@@ -234,7 +240,8 @@ config RAM_SIZE
     hex
     default 0x1000 if MACH_STM32F031
     default 0x1800 if MACH_STM32F042
-    default 0x4000 if MACH_STM32F070 || MACH_STM32F072
+    default 0x1800 if MACH_STM32F070x6
+    default 0x4000 if (MACH_STM32F070 || MACH_STM32F072) && !MACH_STM32F070x6
     default 0x2800 if MACH_STM32F103x6
     default 0x5000 if MACH_STM32F103 && !MACH_STM32F103x6 # Ram size of stm32f103x8
     default 0x8000 if MACH_STM32G431
